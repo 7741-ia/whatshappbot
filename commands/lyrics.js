@@ -1,42 +1,62 @@
 const fetch = require('node-fetch');
 
 async function lyricsCommand(sock, chatId, songTitle, message) {
+    // Vérifie si l'utilisateur a fourni le nom de la chanson
     if (!songTitle) {
-        await sock.sendMessage(chatId, { 
-            text: '🔍 Please enter the song name to get the lyrics! Usage: *lyrics <song name>*'
-        },{ quoted: message });
-        return;
+        return sock.sendMessage(
+            chatId,
+            { text: '🔍 Veuillez entrer le nom de la chanson.\nUtilisation : *lyrics <nom de la chanson>*' },
+            { quoted: message }
+        );
     }
 
     try {
-        // Use lyricsapi.fly.dev and return only the raw lyrics text
+        // Appel à l'API de paroles
         const apiUrl = `https://lyricsapi.fly.dev/api/lyrics?q=${encodeURIComponent(songTitle)}`;
-        const res = await fetch(apiUrl);
-        
-        if (!res.ok) {
-            const errText = await res.text();
-            throw errText;
-        }
-        
-        const data = await res.json();
+        const response = await fetch(apiUrl);
 
-        const lyrics = data && data.result && data.result.lyrics ? data.result.lyrics : null;
+        // Gestion des erreurs de l'API
+        if (!response.ok) {
+            throw new Error(`Erreur API : ${response.status}`);
+        }
+
+        const data = await response.json();
+        const lyrics = data?.result?.lyrics;
+
+        // Si aucune parole n'est trouvée
         if (!lyrics) {
-            await sock.sendMessage(chatId, {
-                text: `❌ Sorry, I couldn't find any lyrics for "${songTitle}".`
-            },{ quoted: message });
-            return;
+            return sock.sendMessage(
+                chatId,
+                { text: `❌ Aucune parole trouvée pour *${songTitle}*.` },
+                { quoted: message }
+            );
         }
 
-        const maxChars = 4096;
-        const output = lyrics.length > maxChars ? lyrics.slice(0, maxChars - 3) + '...' : lyrics;
+        // Extrait court des paroles (respect du droit d'auteur)
+        const previewLength = 400;
+        const preview = lyrics.length > previewLength
+            ? lyrics.slice(0, previewLength) + '\n\n...'
+            : lyrics;
 
-        await sock.sendMessage(chatId, { text: output }, { quoted: message });
+        const output =
+            `🎵 *Aperçu des paroles*\n` +
+            `🎶 *Chanson :* ${songTitle}\n\n` +
+            `${preview}\n\n` +
+            `_Les paroles complètes ne sont pas affichées pour des raisons de droits d’auteur._`;
+
+        await sock.sendMessage(
+            chatId,
+            { text: output },
+            { quoted: message }
+        );
+
     } catch (error) {
-        console.error('Error in lyrics command:', error);
-        await sock.sendMessage(chatId, { 
-            text: `❌ An error occurred while fetching the lyrics for "${songTitle}".`
-        },{ quoted: message });
+        console.error('Erreur dans la commande lyrics :', error);
+
+        await sock.sendMessage(
+            { text: '❌ Une erreur est survenue lors de la récupération des paroles. Veuillez réessayer plus tard.' },
+            { quoted: message }
+        );
     }
 }
 

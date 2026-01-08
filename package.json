@@ -1,6 +1,6 @@
 {
-  "name": "knightbot",
-  "version": "1.0.0",
+  "name": "best-whatsapp-bot",
+  "version": "3.0.2",
   "description": "WhatsApp Bot",
   "main": "index.js",
   "scripts": {

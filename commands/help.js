@@ -5,9 +5,9 @@ const path = require('path');
 async function helpCommand(sock, chatId, message) {
     const helpMessage = `
 ╔═══════════════════╗
-   *🤖 ${settings.botName || 'KnightBot-MD'}*  
-   Version: *${settings.version || '3.0.0'}*
-   by ${settings.botOwner || 'Mr Unique Hacker'}
+   *🤖 ${settings.botName || ' BestBot-MD'}*  
+   Version: *${settings.version || '3.0.7'}*
+   by ${settings.botOwner || 'Best Hacker'}
    YT : ${global.ytch}
 ╚═══════════════════╝
 
@@ -222,7 +222,10 @@ async function helpCommand(sock, chatId, message) {
 ║ ➤ .repo
 ╚═══════════════════╝
 
-Join our channel for updates:`;
+*Suivre la chaîne Best King*
+  https : //whatsapp.com/channel/0029VbCQmfUH5JLqJswxIW3c
+
+_Pour plus d'assistance, contact_ ${settings.botOwner || 'Best Hacker'}`;
 
     try {
         const imagePath = path.join(__dirname, '../assets/bot_image.jpg');
@@ -232,30 +235,12 @@ Join our channel for updates:`;
             
             await sock.sendMessage(chatId, {
                 image: imageBuffer,
-                caption: helpMessage,
-                contextInfo: {
-                    forwardingScore: 1,
-                    isForwarded: true,
-                    forwardedNewsletterMessageInfo: {
-                        newsletterJid: '120363161513685998@newsletter',
-                        newsletterName: 'KnightBot MD',
-                        serverMessageId: -1
-                    }
-                }
+                caption: helpMessage
             },{ quoted: message });
         } else {
             console.error('Bot image not found at:', imagePath);
             await sock.sendMessage(chatId, { 
-                text: helpMessage,
-                contextInfo: {
-                    forwardingScore: 1,
-                    isForwarded: true,
-                    forwardedNewsletterMessageInfo: {
-                        newsletterJid: '120363161513685998@newsletter',
-                        newsletterName: 'KnightBot MD by Mr Unique Hacker',
-                        serverMessageId: -1
-                    } 
-                }
+                text: helpMessage
             });
         }
     } catch (error) {
